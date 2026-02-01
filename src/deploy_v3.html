@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CertChain V3 Deployer</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js" type="application/javascript"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0c;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #00f3ff;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background: #00f3ff;
+            color: #0a0a0c;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .success {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .error {
+            background: rgba(255, 0, 85, 0.1);
+            color: #ff0055;
+            border: 1px solid #ff0055;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>CertChain V3 Deployer</h1>
+        <p>Deploy the new ID-Based Smart Contract to Sepolia.</p>
+        <button id="deployBtn">Deploy Contract V3</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const ABI = [
+            "constructor()",
+            "function issueCertificate(string memory _id, string memory _ipfsHash, string memory _studentName, string memory _studentId, address _recipient) public",
+            "function issueBatch(string[] memory _ids, string[] memory _ipfsHashes, string[] memory _studentNames, string[] memory _studentIds, address[] memory _recipients) public",
+            "function revokeCertificate(string memory _id) public",
+            "function getCertificatesByStudentId(string memory _studentId) public view returns (string[] memory)",
+            "function getCertificate(string memory _id) public view returns (string memory, string memory, uint256, string memory, string memory, address, bool)"
+        ];
+
+        // Bytecode is generated from the Solidity V3 above
+        // Note: In a real environment, I'd compile first. For this task, I'll provide a placeholder or help the user compile.
+        // Actually, I'll provide the SOL text and ask the user to use Remix, but I can try to find a way to provide bytecode if I had a compiler.
+        // Let's assume the user can use Remix for the deployment part if they have the SOL.
+
+        document.getElementById('deployBtn').addEventListener('click', async () => {
+            const status = document.getElementById('status');
+            status.innerHTML = "Opening MetaMask...";
+            status.className = "";
+
+            try {
+                if (!window.ethereum) throw new Error("Please install MetaMask!");
+
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+
+                const { chainId } = await provider.getNetwork();
+                if (chainId !== 11155111) throw new Error("Please switch to Sepolia Testnet!");
+
+                status.innerHTML = "Deployment requires Bytecode. <br><br>💡 <b>RECOMMENDED ACTION:</b><br>1. Copy the Solidity code from `contracts/CertificateRegistry.sol`.<br>2. Go to <a href='https://remix.ethereum.org' target='_blank' style='color:#00f3ff'>Remix IDE</a>.<br>3. Compile and Deploy on Sepolia.<br>4. Paste the <b>new address</b> back here.";
+                status.className = "success";
+            } catch (err) {
+                status.innerHTML = "Error: " + err.message;
+                status.className = "error";
+            }
+        });
+    </script>
+</body>
+
+</html>

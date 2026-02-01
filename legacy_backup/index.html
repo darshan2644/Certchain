@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Certificate Verification</title>
+</head>
+<body>
+
+  <h2>Blockchain Certificate Verification</h2>
+
+  <button onclick="connectWallet()">Connect Wallet</button>
+  <p id="wallet"></p>
+
+  <input type="text" id="hash" placeholder="Enter Certificate Hash (CID)" />
+  <br><br>
+  <button onclick="verifyCert()">Verify Certificate</button>
+
+  <h3 id="result"></h3>
+
+  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

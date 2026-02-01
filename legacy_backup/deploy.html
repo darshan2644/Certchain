@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Deploy Certificate Contract</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .warning {
+      background: #fff3cd;
+      padding: 15px;
+      border-left: 4px solid #ffc107;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Deploy Certificate Contract</h1>
+  
+  <div class="warning">
+    <strong>⚠️ Before deploying:</strong>
+    <ol>
+      <li>Make sure MetaMask is installed</li>
+      <li>Switch to <strong>Sepolia Testnet</strong></li>
+      <li>Ensure you have Sepolia ETH (get from <a href="https://sepoliafaucet.com" target="_blank">faucet</a>)</li>
+    </ol>
+  </div>
+
+  <button onclick="deployCertificate()">Deploy Contract to Sepolia</button>
+  
+  <div id="deployResult"></div>
+
+  <hr style="margin: 40px 0;">
+  
+  <h2>📝 After Deployment:</h2>
+  <ol>
+    <li>Copy the contract address from the result above</li>
+    <li>Open <code>app.js</code></li>
+    <li>Replace the <code>contractAddress</code> value (line 2) with your new address</li>
+    <li>Open <code>index.html</code> to use your dApp</li>
+  </ol>
+
+  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="deploy.js"></script>
+</body>
+</html>
