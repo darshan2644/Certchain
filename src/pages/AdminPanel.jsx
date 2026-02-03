@@ -53,10 +53,27 @@ const AdminPanel = () => {
     }, []);
 
     const clearRequests = () => {
-        if (window.confirm("Clear all registration requests?")) {
+        if (window.confirm("Clear all registration requests? This will remove the student registry but NOT the blockchain certificates.")) {
             localStorage.setItem('pending_registrations', '[]');
             setPendingRequests([]);
             setStats(prev => ({ ...prev, totalStudents: 0 }));
+        }
+    };
+
+    const handleFactoryReset = () => {
+        const confirmStr = "DANGER: This will PERMANENTLY WIPE all local names, events, and registration history. Blockchain certificates will remain on-chain but their local display names will be lost. Type 'RESET' to confirm:";
+        const input = window.prompt(confirmStr);
+
+        if (input === 'RESET') {
+            localStorage.removeItem('pending_registrations');
+            localStorage.removeItem('certchain_events');
+            localStorage.removeItem('event_registrations');
+            localStorage.removeItem('certchain_issued_records');
+            localStorage.removeItem('certchain_notifications');
+            localStorage.removeItem('certchain_user');
+
+            alert("System has been factory reset. Page will reload.");
+            window.location.href = '/login';
         }
     };
 
@@ -205,11 +222,20 @@ const AdminPanel = () => {
 
                 {/* Analytics Dashboard section */}
                 <div style={{ marginBottom: '40px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
-                        <div style={{ background: 'var(--primary-color)', padding: '10px', borderRadius: '12px', color: 'black' }}>
-                            <FaChartBar size={24} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            <div style={{ background: 'var(--primary-color)', padding: '10px', borderRadius: '12px', color: 'black' }}>
+                                <FaChartBar size={24} />
+                            </div>
+                            <h2 style={{ fontSize: '2rem', margin: 0 }} className="text-gradient">Platform Insights</h2>
                         </div>
-                        <h2 style={{ fontSize: '2rem', margin: 0 }} className="text-gradient">Platform Insights</h2>
+                        <button
+                            onClick={handleFactoryReset}
+                            className="btn-secondary"
+                            style={{ padding: '8px 20px', border: '1px solid rgba(255,0,85,0.4)', color: 'var(--error)', fontSize: '0.8rem', fontWeight: 'bold' }}
+                        >
+                            Industrial Wipe (Factory Reset)
+                        </button>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
