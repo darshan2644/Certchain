@@ -21,3 +21,7 @@ Designed with a futuristic "Glassmorphism" aesthetic and 3D background elements,
 
 ---
 *Built with React, Solidity, Ethers.js, and IPFS.* 🏛️🛸🛡️💎📈
+
+
+
+API_KEY="sk-vbsdfsenflsklcd"
