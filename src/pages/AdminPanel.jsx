@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getEthereumContract } from '../utils/contract';
-import { FaUserShield, FaExclamationTriangle, FaCheckCircle, FaSpinner, FaBan, FaFileCsv, FaChartLine, FaCalendarCheck, FaUserGraduate, FaFire, FaChartBar, FaDownload, FaSync, FaUserPlus } from 'react-icons/fa';
+import { FaUserShield, FaExclamationTriangle, FaCheckCircle, FaSpinner, FaBan, FaFileCsv, FaChartLine, FaCalendarCheck, FaUserGraduate, FaFire, FaChartBar, FaDownload, FaSync, FaUserPlus, FaGlobeAmericas } from 'react-icons/fa';
 import Papa from 'papaparse';
 
 const AdminPanel = () => {
@@ -77,6 +77,34 @@ const AdminPanel = () => {
         }
     };
 
+    const syncToBlockchain = async () => {
+        if (pendingRequests.length === 0) return;
+        const confirmSync = window.confirm(`Register all ${pendingRequests.length} students on the Ethereum blockchain? This will make them globally accessible for login in the production version.`);
+        if (!confirmSync) return;
+
+        try {
+            setStatus('loading');
+            setMessage('Preparing batch registration...');
+            const contract = await getEthereumContract();
+
+            const names = pendingRequests.map(r => r.name);
+            const ids = pendingRequests.map(r => r.studentId);
+            const depts = pendingRequests.map(r => r.department || 'General');
+            const wallets = pendingRequests.map(r => r.address || "0x0000000000000000000000000000000000000000");
+
+            const tx = await contract.registerBatch(names, ids, depts, wallets);
+            setMessage('Syncing with Ethereum Network...');
+            await tx.wait();
+
+            setStatus('success');
+            setMessage('Registry successfully synced to the global blockchain!');
+        } catch (error) {
+            console.error(error);
+            setStatus('error');
+            setMessage(error.reason || error.message || "Blockchain sync failed.");
+        }
+    };
+
     const copyToClipboard = (text) => {
         navigator.clipboard.writeText(text);
         alert("Wallet Address Copied!");
@@ -142,21 +170,6 @@ const AdminPanel = () => {
         });
     };
 
-    const downloadTemplate = () => {
-        const headers = ["name", "studentId", "department", "recipient"];
-        const rows = [
-            ["Darshan Vasoya", "DAV-888", "Information Technology", "0x0000000000000000000000000000000000000000"],
-            ["Om Italiya", "OM-123", "Computer Science", "0x0000000000000000000000000000000000000000"]
-        ];
-        const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", "student_registry_template.csv");
-        link.click();
-    };
-
     const handleManualRegister = (e) => {
         e.preventDefault();
         const name = e.target.name.value;
@@ -185,7 +198,7 @@ const AdminPanel = () => {
         setPendingRequests(updated);
         setStats(prev => ({ ...prev, totalStudents: updated.length }));
         e.target.reset();
-        alert("Student registered with 0 certificates!");
+        alert("Student registered locally! Don't forget to push to global ledger.");
         window.location.reload();
     };
 
@@ -214,6 +227,21 @@ const AdminPanel = () => {
             setStatus('error');
             setMessage(error.reason || error.message || "An error occurred during revocation");
         }
+    };
+
+    const downloadTemplate = () => {
+        const headers = ["name", "studentId", "department", "recipient"];
+        const rows = [
+            ["Darshan Vasoya", "DAV-888", "Information Technology", "0x0000000000000000000000000000000000000000"],
+            ["Om Italiya", "OM-123", "Computer Science", "0x0000000000000000000000000000000000000000"]
+        ];
+        const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "student_registry_template.csv");
+        link.click();
     };
 
     return (
@@ -452,7 +480,7 @@ const AdminPanel = () => {
                     className="glass-panel"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    style={{ padding: '40px', border: '1px solid rgba(0, 243, 255, 0.2)', width: '100%', boxSizing: 'border-box', marginTop: '40px' }}
+                    style={{ padding: '40px', border: '1px solid rgba(0, 243, 255, 0.2)', width: '100%', boxSizing: 'border-box', marginTop: '40px', marginBottom: '80px' }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -472,6 +500,9 @@ const AdminPanel = () => {
                         </div>
 
                         <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={syncToBlockchain} className="btn-primary" style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'linear-gradient(90deg, #A855F7, var(--primary-color))', border: 'none' }}>
+                                <FaGlobeAmericas style={{ marginRight: '8px' }} /> Push to Global Ledger
+                            </button>
                             <button onClick={downloadCSV} className="btn-secondary" style={{ padding: '8px 15px', fontSize: '0.8rem', border: '1px solid var(--primary-color)', color: 'var(--primary-color)' }}>
                                 <FaDownload style={{ marginRight: '5px' }} /> Export CSV
                             </button>
@@ -509,7 +540,7 @@ const AdminPanel = () => {
                                                     </span>
                                                 </td>
                                                 <td style={{ padding: '15px', fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--primary-color)' }}>
-                                                    {req.address.slice(0, 16)}...{req.address.slice(-4)}
+                                                    {req.address && req.address.length > 20 ? `${req.address.slice(0, 16)}...${req.address.slice(-4)}` : req.address}
                                                 </td>
                                                 <td style={{ padding: '15px' }}>
                                                     <button

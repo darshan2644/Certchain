@@ -23,25 +23,44 @@ const Login = () => {
         }
     };
 
-    const handleStudentLogin = (e) => {
+    const handleStudentLogin = async (e) => {
         e.preventDefault();
         if (!studentId) {
             setError('Please enter your Student ID');
             return;
         }
 
-        // Verify against Registry
-        const registry = JSON.parse(localStorage.getItem('pending_registrations') || '[]');
+        setError('');
         const normalizedInputId = studentId.trim().toUpperCase();
-        const studentExists = registry.find(r => r.studentId.trim().toUpperCase() === normalizedInputId);
 
-        if (!studentExists) {
-            setError('ACCESS DENIED: Student ID not found in the official registry. Please contact your administrator.');
+        // 1. Check Local Registry First (Fast)
+        const localRegistry = JSON.parse(localStorage.getItem('pending_registrations') || '[]');
+        const localMatch = localRegistry.find(r => r.studentId.trim().toUpperCase() === normalizedInputId);
+
+        if (localMatch) {
+            loginStudentById(studentId);
+            navigate('/dashboard');
             return;
         }
 
-        loginStudentById(studentId);
-        navigate('/dashboard');
+        // 2. Fallback: Check Global Blockchain Registry (Required for Deployed version)
+        try {
+            const { getReadOnlyContract } = await import('../utils/contract');
+            const contract = await getReadOnlyContract();
+
+            // Check if student exists on-chain
+            const blockchainStudent = await contract.students(normalizedInputId);
+            // blockchainStudent[4] is the 'registered' boolean in the mapping
+            if (blockchainStudent && blockchainStudent[4]) {
+                loginStudentById(studentId);
+                navigate('/dashboard');
+            } else {
+                setError('ACCESS DENIED: ID not found in Local or Global registry.');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Verification failed. Use a local registered ID or ensure you are connected to the network.');
+        }
     };
 
     return (
