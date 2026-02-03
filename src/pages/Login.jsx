@@ -30,37 +30,9 @@ const Login = () => {
             return;
         }
 
-        setError('');
-        const normalizedInputId = studentId.trim().toUpperCase();
-
-        // 1. Check Local Registry First (Fast)
-        const localRegistry = JSON.parse(localStorage.getItem('pending_registrations') || '[]');
-        const localMatch = localRegistry.find(r => r.studentId.trim().toUpperCase() === normalizedInputId);
-
-        if (localMatch) {
-            loginStudentById(studentId);
-            navigate('/dashboard');
-            return;
-        }
-
-        // 2. Fallback: Check Global Blockchain Registry (Required for Deployed version)
-        try {
-            const { getReadOnlyContract } = await import('../utils/contract');
-            const contract = await getReadOnlyContract();
-
-            // Check if student exists on-chain
-            const blockchainStudent = await contract.students(normalizedInputId);
-            // blockchainStudent[4] is the 'registered' boolean in the mapping
-            if (blockchainStudent && blockchainStudent[4]) {
-                loginStudentById(studentId);
-                navigate('/dashboard');
-            } else {
-                setError('ACCESS DENIED: ID not found in Local or Global registry.');
-            }
-        } catch (err) {
-            console.error(err);
-            setError('Verification failed. Use a local registered ID or ensure you are connected to the network.');
-        }
+        // 1. Just login directly - removing the "Admin Allow" requirement
+        loginStudentById(studentId);
+        navigate('/dashboard');
     };
 
     return (

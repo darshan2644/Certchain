@@ -64,6 +64,7 @@ const Navbar = () => {
                 {!user && (
                     <>
                         <Link to="/register" className={`nav-link ${isActive('/register')}`}>Register</Link>
+                        <Link to="/talent" className={`nav-link ${isActive('/talent')}`}>Talent Search</Link>
                         <Link to="/guide" className={`nav-link ${isActive('/guide')}`}>Guide</Link>
                     </>
                 )}

@@ -17,6 +17,8 @@ import Register from './pages/Register';
 import EventsManagement from './pages/EventsManagement';
 import StudentEvents from './pages/StudentEvents';
 import Leaderboard from './pages/Leaderboard';
+import PublicProfile from './pages/PublicProfile';
+import TalentSearch from './pages/TalentSearch';
 
 const ProtectedRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -36,6 +38,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/verify" element={<Verify />} />
+            <Route path="/verify/:id" element={<Verify />} />
+            <Route path="/profile/:studentId" element={<PublicProfile />} />
+            <Route path="/talent" element={<TalentSearch />} />
 
             {/* Protected routes */}
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />

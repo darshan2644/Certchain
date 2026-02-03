@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getReadOnlyContract } from '../utils/contract';
 import { FaSearch, FaCheckDouble, FaTimesCircle, FaExternalLinkAlt, FaCube, FaDownload, FaIdCard } from 'react-icons/fa';
@@ -11,14 +12,16 @@ const Verify = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const { id: pathId } = useParams();
+
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
-        const urlId = queryParams.get('id');
+        const urlId = queryParams.get('id') || pathId;
         if (urlId) {
             setId(urlId);
             performVerification(urlId);
         }
-    }, []);
+    }, [pathId]);
 
     const performVerification = async (verifyId) => {
         setLoading(true);
