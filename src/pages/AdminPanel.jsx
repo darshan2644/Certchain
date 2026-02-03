@@ -149,6 +149,7 @@ const AdminPanel = () => {
                     studentId: (row.studentId || row.StudentID || row.id || row.ID || '').toString().trim(),
                     department: row.department || row.Department || 'General',
                     address: row.recipient || row.address || row.wallet || '0x0000000000000000000000000000000000000000',
+                    email: row.email || row.Email || '',
                     timestamp: new Date().toLocaleString()
                 })).filter(entry => entry.studentId && entry.studentId !== '');
 
@@ -175,6 +176,7 @@ const AdminPanel = () => {
         const name = e.target.name.value;
         const studentId = e.target.studentId.value;
         const address = e.target.address.value || "0x0000000000000000000000000000000000000000";
+        const email = e.target.email.value || "";
 
         if (!name || !studentId) return;
 
@@ -190,6 +192,7 @@ const AdminPanel = () => {
             studentId,
             department: e.target.department.value || 'General',
             address,
+            email,
             timestamp: new Date().toLocaleString()
         };
 
@@ -230,10 +233,10 @@ const AdminPanel = () => {
     };
 
     const downloadTemplate = () => {
-        const headers = ["name", "studentId", "department", "recipient"];
+        const headers = ["name", "studentId", "department", "email", "recipient"];
         const rows = [
-            ["Darshan Vasoya", "DAV-888", "Information Technology", "0x0000000000000000000000000000000000000000"],
-            ["Om Italiya", "OM-123", "Computer Science", "0x0000000000000000000000000000000000000000"]
+            ["Darshan Vasoya", "DAV-888", "Information Technology", "darshan@example.com", "0x0000000000000000000000000000000000000000"],
+            ["Om Italiya", "OM-123", "Computer Science", "om@example.com", "0x0000000000000000000000000000000000000000"]
         ];
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -443,9 +446,15 @@ const AdminPanel = () => {
                                         <option value="General">General</option>
                                     </select>
                                 </div>
-                                <div className="input-group">
-                                    <label className="input-label">Wallet Address (Optional)</label>
-                                    <input name="address" type="text" className="input-field" placeholder="0x..." />
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    <div className="input-group">
+                                        <label className="input-label">Student Email</label>
+                                        <input name="email" type="email" className="input-field" placeholder="student@example.com" />
+                                    </div>
+                                    <div className="input-group">
+                                        <label className="input-label">Wallet Address (Optional)</label>
+                                        <input name="address" type="text" className="input-field" placeholder="0x..." />
+                                    </div>
                                 </div>
                                 <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '5px' }}>
                                     Add to Registry
@@ -456,6 +465,7 @@ const AdminPanel = () => {
                                 <div style={{ border: '2px dashed var(--glass-border)', padding: '20px', borderRadius: '15px', background: 'rgba(255,255,255,0.01)' }}>
                                     <FaFileCsv size={32} color="var(--primary-color)" style={{ marginBottom: '10px', opacity: 0.8 }} />
                                     <h4 style={{ margin: '0 0 5px 0' }}>CSV Registry Import</h4>
+                                    <p style={{ fontSize: '0.7rem', opacity: 0.5, marginBottom: '15px' }}>Cols: name, studentId, department, email</p>
                                     <input
                                         type="file"
                                         id="bulk-register-main"
@@ -523,6 +533,7 @@ const AdminPanel = () => {
                                         <tr style={{ borderBottom: '1px solid var(--glass-border)', opacity: 0.5, fontSize: '0.8rem' }}>
                                             <th style={{ padding: '15px' }}>Identity</th>
                                             <th style={{ padding: '15px' }}>Department</th>
+                                            <th style={{ padding: '15px' }}>Contact Info</th>
                                             <th style={{ padding: '15px' }}>Wallet Address</th>
                                             <th style={{ padding: '15px' }}>Action</th>
                                         </tr>
@@ -538,6 +549,9 @@ const AdminPanel = () => {
                                                     <span style={{ fontSize: '0.7rem', background: 'rgba(0,243,255,0.1)', color: 'var(--primary-color)', padding: '3px 8px', borderRadius: '4px' }}>
                                                         {req.department || 'General'}
                                                     </span>
+                                                </td>
+                                                <td style={{ padding: '15px' }}>
+                                                    <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>{req.email || 'N/A'}</span>
                                                 </td>
                                                 <td style={{ padding: '15px', fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--primary-color)' }}>
                                                     {req.address && req.address.length > 20 ? `${req.address.slice(0, 16)}...${req.address.slice(-4)}` : req.address}

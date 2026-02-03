@@ -5,6 +5,7 @@ import { uploadToPinata } from '../utils/pinata';
 import { getEthereumContract } from '../utils/contract';
 import { FaFileCsv, FaSpinner, FaCheckCircle, FaImage, FaFileExport, FaGlobeAmericas, FaBuilding, FaHistory, FaSearch } from 'react-icons/fa';
 import { pushNotification } from '../utils/notifications';
+import { sendCertificateEmail } from '../utils/email';
 
 const BulkUpload = () => {
     const [usePending, setUsePending] = useState(false);
@@ -107,11 +108,22 @@ const BulkUpload = () => {
             setMessage(`Successfully issued ${csvData.length} certificates!`);
             pushNotification(`Bulk complete for ${eventTitle}: ${csvData.length} certs`, 'success');
 
+            // TRIGGER BULK EMAILS
+            csvData.forEach((row, i) => {
+                const email = row.email || row.Email || '';
+                const name = names[i];
+                const certId = ids[i];
+                if (email) {
+                    sendCertificateEmail(email, name, certId);
+                }
+            });
+
             // Save Records
             const newRecords = csvData.map((row, i) => ({
                 id: ids[i],
                 student: names[i],
                 studentId: studentIds[i],
+                email: row.email || row.Email || '',
                 event: eventTitle,
                 mode: eventMode,
                 date: new Date().toLocaleString(),
@@ -136,6 +148,7 @@ const BulkUpload = () => {
                         name: entry.student,
                         studentId: entry.studentId,
                         department: originalRow?.department || originalRow?.Department || 'General',
+                        email: originalRow?.email || originalRow?.Email || '',
                         address: recipients[i],
                         timestamp: new Date().toLocaleString()
                     });
@@ -220,7 +233,7 @@ const BulkUpload = () => {
                         <div style={{ border: '2px dashed var(--glass-border)', padding: '25px', borderRadius: '20px', textAlign: 'center' }}>
                             <FaFileCsv size={32} color="var(--primary-color)" />
                             <h4 style={{ margin: '15px 0 5px 0' }}>Student Data</h4>
-                            <p style={{ fontSize: '0.7rem', opacity: 0.5, marginBottom: '15px' }}>Columns: name, studentId</p>
+                            <p style={{ fontSize: '0.7rem', opacity: 0.5, marginBottom: '15px' }}>Columns: name, studentId, email</p>
                             <input type="file" id="csv-u" style={{ display: 'none' }} onChange={handleCsvUpload} />
                             <label htmlFor="csv-u" className="btn-secondary" style={{ cursor: 'pointer' }}>{csvData.length > 0 ? `${csvData.length} Loaded` : "Upload CSV"}</label>
                         </div>

@@ -32,7 +32,13 @@ This guide will walk you through the steps required to get your Blockchain Certi
    ```
 2. Open the provided Localhost URL (usually `http://localhost:5173`).
 
-## 5. How to Use
+## 5. Setup Automated Emails (EmailJS)
+1. Sign up at [EmailJS](https://www.emailjs.com/).
+2. Add an **Email Service** (e.g., Gmail).
+3. Create an **Email Template** with these placeholders: `{{to_name}}`, `{{cert_id}}`, `{{verify_link}}`, `{{to_email}}`.
+4. Replace the constants in `src/utils/email.js` with your Service ID, Template ID, and Public Key.
+
+## 6. How to Use
 - **Issue Certificate**: Go to the "Issue Certificate" page, fill in the details, upload a PDF, and confirm the MetaMask transaction.
 - **Verify**: Go to the "Verify Details" page, enter the Certificate ID you used during issuance, and see the blockchain-verified results.
 

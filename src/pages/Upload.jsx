@@ -5,6 +5,7 @@ import { getEthereumContract } from '../utils/contract';
 import { FaCloudUploadAlt, FaCheckCircle, FaSpinner, FaExclamationTriangle, FaSearch, FaGlobeAmericas, FaBuilding, FaHistory } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { pushNotification } from '../utils/notifications';
+import { sendCertificateEmail } from '../utils/email';
 
 const Upload = () => {
     const navigate = useNavigate();
@@ -12,7 +13,8 @@ const Upload = () => {
         name: '',
         certId: `CERT-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
         studentId: '',
-        recipient: ''
+        recipient: '',
+        email: ''
     });
     const [registry, setRegistry] = useState([]);
     const [eventMode, setEventMode] = useState('online'); // 'online' or 'offline'
@@ -80,6 +82,11 @@ const Upload = () => {
             setTxHash(tx.hash);
             setMessage(`Credential Issued for ${eventTitle}`);
             pushNotification(`Certificate issued for ${eventTitle}: ${formData.certId}`, 'success');
+
+            // TRIGGER AUTOMATED EMAIL
+            if (formData.email) {
+                sendCertificateEmail(formData.email, formData.name, formData.certId);
+            }
 
             const records = JSON.parse(localStorage.getItem('certchain_issued_records') || '[]');
             localStorage.setItem('certchain_issued_records', JSON.stringify([newRecord, ...records]));
@@ -175,6 +182,7 @@ const Upload = () => {
                                         name: student.name,
                                         studentId: student.studentId,
                                         recipient: student.address || '',
+                                        email: student.email || '',
                                         certId: `CERT-${Date.now()}-${Math.floor(Math.random() * 1000)}`
                                     });
                                 }
@@ -209,6 +217,17 @@ const Upload = () => {
                                 onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
                             />
                         </div>
+                    </div>
+
+                    <div className="input-group">
+                        <label className="input-label">Student Email (For Notification)</label>
+                        <input
+                            type="email"
+                            className="input-field"
+                            placeholder="student@example.com"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
                     </div>
 
                     <div className="input-group">
