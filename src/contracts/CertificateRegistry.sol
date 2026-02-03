@@ -4,6 +4,15 @@ pragma solidity ^0.8.0;
 contract CertificateRegistry {
     address public admin;
 
+    struct Student {
+        string name;
+        string studentId;
+        string department;
+        address wallet;
+        bool registered;
+        uint256 registeredAt;
+    }
+
     struct Certificate {
         string id;
         string ipfsHash;
@@ -15,6 +24,8 @@ contract CertificateRegistry {
         bool revoked;
     }
 
+    mapping(string => Student) public students; // studentId -> Student
+    string[] public allStudentIds;
     mapping(string => Certificate) public certificates;
     mapping(string => string[]) public idToCerts; // Mapping studentId -> list of cert IDs
     
@@ -28,6 +39,53 @@ contract CertificateRegistry {
 
     constructor() {
         admin = msg.sender;
+    }
+
+    function registerStudent(
+        string memory _name,
+        string memory _studentId,
+        string memory _department,
+        address _wallet
+    ) public onlyAdmin {
+        require(!students[_studentId].registered, "Student already registered");
+        
+        students[_studentId] = Student({
+            name: _name,
+            studentId: _studentId,
+            department: _department,
+            wallet: _wallet,
+            registered: true,
+            registeredAt: block.timestamp
+        });
+        
+        allStudentIds.push(_studentId);
+    }
+
+    function registerBatch(
+        string[] memory _names,
+        string[] memory _studentIds,
+        string[] memory _departments,
+        address[] memory _wallets
+    ) public onlyAdmin {
+        require(_names.length == _studentIds.length && _names.length == _departments.length && _names.length == _wallets.length, "Arrays length mismatch");
+        
+        for(uint i = 0; i < _names.length; i++) {
+            if(!students[_studentIds[i]].registered) {
+                students[_studentIds[i]] = Student({
+                    name: _names[i],
+                    studentId: _studentIds[i],
+                    department: _departments[i],
+                    wallet: _wallets[i],
+                    registered: true,
+                    registeredAt: block.timestamp
+                });
+                allStudentIds.push(_studentIds[i]);
+            }
+        }
+    }
+
+    function getAllStudents() public view returns (string[] memory) {
+        return allStudentIds;
     }
 
     function issueCertificate(

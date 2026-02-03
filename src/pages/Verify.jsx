@@ -27,21 +27,57 @@ const Verify = () => {
 
         try {
             const contract = await getReadOnlyContract();
-            const result = await contract.getCertificate(verifyId);
 
-            // Version 3 result: [id, ipfsHash, timestamp, studentName, studentId, recipient, revoked]
-            setCert({
-                id: result[0],
-                ipfsHash: result[1],
-                timestamp: new Date(Number(result[2]) * 1000).toLocaleString(),
-                studentName: result[3],
-                studentId: result[4],
-                recipient: result[5],
-                revoked: result[6]
-            });
+            // Try direct Certificate ID first
+            try {
+                const result = await contract.getCertificate(verifyId);
+                if (result[0]) {
+                    setCert({
+                        id: result[0],
+                        ipfsHash: result[1],
+                        timestamp: new Date(Number(result[2]) * 1000).toLocaleString(),
+                        studentName: result[3],
+                        studentId: result[4],
+                        recipient: result[5],
+                        revoked: result[6]
+                    });
+                    setLoading(false);
+                    return;
+                }
+            } catch (e) {
+                // Not a direct Certificate ID, try Student ID
+                console.log("Not a cert ID, checking student ID...");
+            }
+
+            // Try Student ID lookup
+            const studentCertIds = await contract.getCertificatesByStudentId(verifyId);
+            if (studentCertIds && studentCertIds.length > 0) {
+                // If found by Student ID, fetch the most recent certificate
+                const latestCertId = studentCertIds[studentCertIds.length - 1];
+                const result = await contract.getCertificate(latestCertId);
+
+                setCert({
+                    id: result[0],
+                    ipfsHash: result[1],
+                    timestamp: new Date(Number(result[2]) * 1000).toLocaleString(),
+                    studentName: result[3],
+                    studentId: result[4],
+                    recipient: result[5],
+                    revoked: result[6],
+                    isFromStudentSearch: true,
+                    totalCount: studentCertIds.length
+                });
+            } else {
+                throw new Error("No records found for this ID.");
+            }
+
         } catch (err) {
             console.error(err);
-            setError("Certificate ID not found on the blockchain.");
+            if (err.message.includes("ENOMETA")) {
+                setError("Blockchain provider not found. Please install the MetaMask extension to verify on-chain certificates.");
+            } else {
+                setError("ID not found on the blockchain. Please check if you entered a valid Certificate ID or Student ID.");
+            }
         } finally {
             setLoading(false);
         }
@@ -107,10 +143,16 @@ const Verify = () => {
                         >
                             <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
                                 <div style={{ flex: '1', minWidth: '300px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px', color: cert.revoked ? 'var(--error)' : 'var(--success)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px', color: cert.revoked ? 'var(--error)' : 'var(--success)' }}>
                                         {cert.revoked ? <FaTimesCircle size={30} /> : <FaCheckDouble size={30} />}
                                         <h3 style={{ margin: 0, fontSize: '1.5rem' }}>{cert.revoked ? 'CERTIFICATE REVOKED' : 'Authentic Record'}</h3>
                                     </div>
+
+                                    {cert.isFromStudentSearch && (
+                                        <div style={{ background: 'rgba(0,243,255,0.1)', color: 'var(--primary-color)', padding: '8px 15px', borderRadius: '10px', marginBottom: '20px', fontSize: '0.9rem', border: '1px solid rgba(0,243,255,0.2)' }}>
+                                            Found <strong>{cert.totalCount}</strong> certificates for this Student ID. Showing the most recent.
+                                        </div>
+                                    )}
 
                                     {cert.revoked && (
                                         <div style={{ background: 'var(--error)', color: 'white', padding: '10px 20px', borderRadius: '10px', marginBottom: '20px', fontWeight: 'bold', textAlign: 'center', fontSize: '1.1rem', boxShadow: '0 0 20px rgba(255,0,85,0.4)' }}>

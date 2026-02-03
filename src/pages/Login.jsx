@@ -29,6 +29,17 @@ const Login = () => {
             setError('Please enter your Student ID');
             return;
         }
+
+        // Verify against Registry
+        const registry = JSON.parse(localStorage.getItem('pending_registrations') || '[]');
+        const normalizedInputId = studentId.trim().toUpperCase();
+        const studentExists = registry.find(r => r.studentId.trim().toUpperCase() === normalizedInputId);
+
+        if (!studentExists) {
+            setError('ACCESS DENIED: Student ID not found in the official registry. Please contact your administrator.');
+            return;
+        }
+
         loginStudentById(studentId);
         navigate('/dashboard');
     };

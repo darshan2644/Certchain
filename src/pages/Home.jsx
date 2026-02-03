@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FaShieldAlt, FaCloudUploadAlt, FaLayerGroup, FaAward, FaUserPlus } from 'react-icons/fa';
+import { FaShieldAlt, FaCloudUploadAlt, FaLayerGroup, FaAward, FaUserPlus, FaTrophy } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
@@ -14,6 +14,14 @@ const Home = () => {
             icon: <FaShieldAlt />,
             link: "/verify",
             color: "var(--primary-color)",
+            roles: ['admin', 'student']
+        },
+        {
+            title: "Global Rankings",
+            desc: "The on-chain Hall of Fame. See how you rank against the top university achievers.",
+            icon: <FaTrophy />,
+            link: "/leaderboard",
+            color: "#facc15",
             roles: ['admin', 'student']
         },
         {
@@ -67,7 +75,7 @@ const Home = () => {
                 </p>
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <Link to="/guide" className="btn-primary">Get Started</Link>
-                    <Link to="/verify" className="btn-secondary">Explore Records</Link>
+                    <Link to="/leaderboard" className="btn-secondary">View Hall of Fame</Link>
                 </div>
             </motion.div>
 

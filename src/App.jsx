@@ -14,6 +14,9 @@ import AdminAnalytics from './pages/AdminAnalytics';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import EventsManagement from './pages/EventsManagement';
+import StudentEvents from './pages/StudentEvents';
+import Leaderboard from './pages/Leaderboard';
 
 const ProtectedRoute = ({ children, role }) => {
   const { user } = useAuth();
@@ -38,15 +41,18 @@ function App() {
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/guide" element={<ProtectedRoute><Guide /></ProtectedRoute>} />
             <Route path="/dev" element={<ProtectedRoute><Developer /></ProtectedRoute>} />
+            <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
 
             {/* Admin Only Routes */}
             <Route path="/upload" element={<ProtectedRoute role="admin"><Upload /></ProtectedRoute>} />
             <Route path="/bulk" element={<ProtectedRoute role="admin"><BulkUpload /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute role="admin"><AdminPanel /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute role="admin"><AdminAnalytics /></ProtectedRoute>} />
+            <Route path="/manage-events" element={<ProtectedRoute role="admin"><EventsManagement /></ProtectedRoute>} />
 
             {/* Student Specific Routes */}
             <Route path="/dashboard" element={<ProtectedRoute role="student"><Dashboard /></ProtectedRoute>} />
+            <Route path="/events" element={<ProtectedRoute role="student"><StudentEvents /></ProtectedRoute>} />
 
             {/* Redirect any unknown route to login if not authenticated */}
             <Route path="*" element={<ProtectedRoute><Home /></ProtectedRoute>} />

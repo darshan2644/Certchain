@@ -41,7 +41,7 @@ const Register = () => {
             localStorage.setItem('pending_registrations', JSON.stringify(existingRequests));
 
             setStatus('success');
-            setMessage("Application Submitted! Your wallet identity (0x...) has been safely sent to Darshan Vasoya for verification.");
+            setMessage(`Registration Application Submitted! Your identity (0x...) has been safely sent for verification. You can now participate in events.`);
         } catch (error) {
             setStatus('error');
             setMessage(error.message || "Registration failed.");
@@ -49,18 +49,18 @@ const Register = () => {
     };
 
     return (
-        <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', padding: '20px' }}>
             <motion.div
                 className="glass-panel"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                style={{ padding: '40px', width: '100%', maxWidth: '500px', textAlign: 'center' }}
+                style={{ padding: '40px', width: '100%', maxWidth: '550px', textAlign: 'center' }}
             >
                 <div style={{ width: '80px', height: '80px', background: 'rgba(0,243,255,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: 'var(--primary-color)' }}>
                     <FaUserPlus size={40} />
                 </div>
                 <h2 className="text-gradient">Student Identity Registration</h2>
-                <p style={{ opacity: 0.6, marginBottom: '30px' }}>Submit your details to the Admin once. Your wallet will be linked to your future certificates automatically.</p>
+                <p style={{ opacity: 0.6, marginBottom: '30px' }}>Submit your details to the Admin once. Your wallet will be linked to your future certificates and events.</p>
 
                 <form onSubmit={handleRegister} style={{ textAlign: 'left' }}>
                     <div className="input-group">
@@ -80,22 +80,23 @@ const Register = () => {
                     </div>
 
                     <div className="input-group">
-                        <label className="input-label">Student ID (Optional)</label>
+                        <label className="input-label">Student ID</label>
                         <div style={{ position: 'relative' }}>
                             <input
                                 type="text"
                                 className="input-field"
-                                placeholder="e.g. DAV-2024-101"
+                                placeholder="e.g. 21CS001"
                                 value={studentId}
                                 onChange={(e) => setStudentId(e.target.value)}
+                                required
                                 style={{ paddingLeft: '45px' }}
                             />
                             <FaIdCard style={{ position: 'absolute', left: '15px', top: '15px', opacity: 0.5 }} />
                         </div>
                     </div>
 
-                    <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '10px' }} disabled={status === 'loading'}>
-                        {status === 'loading' ? <FaSpinner className="spin" /> : <><FaWallet /> Register My Wallet Identity</>}
+                    <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '20px', height: '55px', fontSize: '1.1rem' }} disabled={status === 'loading'}>
+                        {status === 'loading' ? <FaSpinner className="spin" /> : <><FaWallet /> Confirm & Register Identity</>}
                     </button>
                 </form>
 
@@ -106,17 +107,17 @@ const Register = () => {
                             animate={{ opacity: 1, y: 0 }}
                             style={{
                                 marginTop: '25px',
-                                padding: '15px',
-                                borderRadius: '10px',
+                                padding: '20px',
+                                borderRadius: '15px',
                                 background: status === 'error' ? 'rgba(255,0,85,0.1)' : 'rgba(0,255,136,0.1)',
                                 border: `1px solid ${status === 'error' ? 'var(--error)' : 'var(--success)'}`
                             }}
                         >
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: status === 'error' ? 'var(--error)' : 'var(--success)' }}>
-                                {status === 'success' ? <FaCheckCircle /> : <FaSpinner className="spin" />}
-                                <strong>{status.toUpperCase()}</strong>
+                                {status === 'success' ? <FaCheckCircle size={20} /> : <FaSpinner className="spin" />}
+                                <strong style={{ fontSize: '1.1rem' }}>{status.toUpperCase()}</strong>
                             </div>
-                            <p style={{ margin: '5px 0 0 0', fontSize: '0.9rem' }}>{message}</p>
+                            <p style={{ margin: '10px 0 0 0', fontSize: '1rem', opacity: 0.8 }}>{message}</p>
                         </motion.div>
                     )}
                 </AnimatePresence>
